@@ -2,32 +2,44 @@ package services
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
+	"github.com/Arnav2300/cal-set/internal/db"
 	"github.com/Arnav2300/cal-set/internal/dtos"
 	"github.com/Arnav2300/cal-set/internal/models"
-	"gorm.io/gorm"
+	"github.com/Arnav2300/cal-set/internal/utils"
 )
 
-func Login(db *gorm.DB) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var input dtos.LoginInput
+func Login(w http.ResponseWriter, r *http.Request) {
 
-		//parse JSON input
-		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-			http.Error(w, "Invalid input", http.StatusBadRequest)
-			return
-		}
+	db := db.GetDatabase()
+	var input dtos.LoginInput
 
-		//find user in DB
-		var user models.User
-		if err := db.Where("email = ?", input.Email).First(&user).Error; err != nil {
-			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
-			return
-		}
-		//check if password is correct
-		//generate jwt is all is good
-		//return token
-
+	//parse JSON input
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Invalid input", http.StatusBadRequest)
+		return
 	}
+
+	//find user in DB
+	var user models.User
+	if err := db.Where("email = ?", input.Email).First(&user).Error; err != nil {
+		http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+		return
+	}
+	//check if password is correct
+	if !utils.CheckPassword(input.Password, *user.Password) {
+		http.Error(w, "Invalid Credentials", http.StatusUnauthorized)
+		return
+	}
+	//generate jwt if all is good
+	token, err := utils.GenerateToken(user.Email, user.Role)
+	if err != nil {
+		log.Printf("Error while generating token: %s", err.Error())
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+	//return token
+	json.NewEncoder(w).Encode(map[string]string{"token": token})
 }
