@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Arnav2300/cal-set/internal/db"
-	"github.com/Arnav2300/cal-set/internal/dtos"
-	"github.com/Arnav2300/cal-set/internal/models"
-	"github.com/Arnav2300/cal-set/internal/utils"
+	"github.com/Arnav2300/cal-set/api/db"
+	"github.com/Arnav2300/cal-set/api/dtos"
+	"github.com/Arnav2300/cal-set/api/models"
+	"github.com/Arnav2300/cal-set/api/utils"
 )
 
 func Singup(w http.ResponseWriter, r *http.Request) {

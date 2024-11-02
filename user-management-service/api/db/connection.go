@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/Arnav2300/cal-set/internal/models"
+	"github.com/Arnav2300/cal-set/api/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
